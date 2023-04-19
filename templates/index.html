@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Multi-Threading</title>
+    <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input[type="text"], select {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: 100%;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        input[type="submit"]:hover {
+            background-color: #3e8e41;
+        }
+    </style>
+    <script>
+        var socket = io.connect('http://localhost:5000');
+        socket.on('update', function(data) {
+            $('#' + data.id).text(data.num).css('color', data.color);
+        });
+        $(document).ready(function() {
+            $('form').on('submit', function(event) {
+                event.preventDefault();
+                var form_data = $(this).serialize();
+                socket.emit('submit', form_data);
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Multi-Threading with Websockets</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Task</th>
+                <th>Lower Bound</th>
+                <th>Upper Bound</th>
+                <th>Refresh Time</th>
+                <th>Random Number</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+                <tr>
+                    <td>{{ task.displayLocation }}</td>
+                    <td><input type="text" name="lb" value="{{ task.lb }}"></td>
+                    <td><input type="text" name="ub" value="{{ task.ub }}"></td>
+                    <td><input type="text" name="refreshTime" value="{{ task.refreshTime }}"></td>
+                    <td><span id="{{ task.displayLocation }}" style="color: {{ task.color }}">{{ task.num }}</span></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <form>
+        <div>
+            <label for="displayLocation">Task:</label>
+            <input type="text" id="displayLocation" name="displayLocation">
+        </div>
+        <div>
+            <label for="lb">Lower Bound:</label>
+            <input type="text" id="lb" name="lb">
+        </div>
+        <div>
+            <label for="ub">Upper Bound:</label>
+            <input type="text" id="ub" name="ub">
+        </div>
+        <div>
+            <label for="refreshTime">Refresh Time:</label>
+            <input type="text" id="refreshTime" name="refreshTime" value="5">
+        </div>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
+
